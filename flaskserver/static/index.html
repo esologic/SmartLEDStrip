@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Better LEDs</title>
+    <link rel="stylesheet" type="text/css" href="./style.css"/>
+    <link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
+    <script type="text/javascript" src="./colorpicker.js"></script>
+</head>
+
+<body>
+
+
+    <h1 class="text">Better LED Controller</h1>
+
+    <p class="text">Click on the gradient to change the color.</p>
+
+    <div id="picker"></div>
+    <div id="slider"></div>
+
+    <script type="text/javascript">
+
+        ColorPicker(document.getElementById('slider'), document.getElementById('picker'), function(hex, hsv, rgb)
+        {
+            console.log(hsv.h, hsv.s, hsv.v);         // [0-359], [0-1], [0-1]
+            console.log(rgb.r, rgb.g, rgb.b);         // [0-255], [0-255], [0-255]
+
+            document.body.style.backgroundColor = hex;        // #HEX
+            var texts = document.getElementsByClassName("text");
+
+            var req = new XMLHttpRequest();
+            req.open("POST", "/setcolor", true);
+            var data = [rgb.r, rgb.g, rgb.b];
+            console.log("Sending: " + data + " to server.");
+            req.send(data);
+
+            var i;
+            for (i = 0; i < texts.length; i++) {
+                texts[i].style.color = invertColor(hex);
+            }
+        });
+
+        function invertColor(hex)
+        {
+            if (hex.indexOf('#') === 0) {
+                hex = hex.slice(1);
+            }
+            // convert 3-digit hex to 6-digits.
+            if (hex.length === 3) {
+                hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+            }
+            if (hex.length !== 6) {
+                throw new Error('Invalid HEX color.');
+            }
+            // invert color components
+            var r = (255 - parseInt(hex.slice(0, 2), 16)).toString(16),
+                g = (255 - parseInt(hex.slice(2, 4), 16)).toString(16),
+                b = (255 - parseInt(hex.slice(4, 6), 16)).toString(16);
+            // pad each with zeros and return
+            return '#' + padZero(r) + padZero(g) + padZero(b);
+        }
+
+        function padZero(str, len)
+        {
+            len = len || 2;
+            var zeros = new Array(len).join('0');
+            return (zeros + str).slice(-len);
+        }
+
+    </script>
+</body>
+</html>
