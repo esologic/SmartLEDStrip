@@ -2,7 +2,7 @@ from flask import Flask, request
 import logging
 import socket
 from threading import Thread
-from socketsender import Socketsender
+from core.socketsender import Socketsender
 
 
 log = logging.getLogger('werkzeug')

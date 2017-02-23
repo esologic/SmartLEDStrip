@@ -1,10 +1,10 @@
-from stripserver import SimPins, BlasterPins, Stripserver
-from flaskserver.uiserver import Uiserver
+from core.stripserver import SimPins, BlasterPins, Stripserver
+from core.flaskserver.uiserver import Uiserver
 
 ONPI = True
 try:
     import RPi.GPIO as GPIO
-    from analogcontrol import Analogcontrol
+    from core.analogcontrol import Analogcontrol
 except ModuleNotFoundError as e:
     ONPI = False
 
