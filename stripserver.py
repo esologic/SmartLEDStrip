@@ -114,9 +114,10 @@ class Stripserver(Thread):
 
     def __init__(self, host, port, pins):
         Thread.__init__(self)
-
         self.server = socketserver.TCPServer((host, port), Handler)
         self.server.pins = pins  # no idea if this is a hack or not
+
+        print("Strip Server Initialized, listening on: " + str(host) + ":" + str(port))
 
     def run(self):
         self.server.serve_forever()
