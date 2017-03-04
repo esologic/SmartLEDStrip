@@ -47,4 +47,4 @@ class Uiserver(Socketsender):
         return self.app.send_static_file(path)
 
     def run(self):
-        self.app.run()
+        self.app.run(host="0.0.0.0")

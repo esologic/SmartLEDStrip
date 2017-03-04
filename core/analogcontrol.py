@@ -3,7 +3,8 @@ import sys
 from time import sleep
 import spidev
 from threading import Thread
-from socketsender import Socketsender
+from core.socketsender import Socketsender
+from datetime import datetime
 
 class Analogcontrol(Socketsender):
 
@@ -12,6 +13,9 @@ class Analogcontrol(Socketsender):
 
         self.spi = spidev.SpiDev()
         self.spi.open(0, 0)
+
+        print("Init analog Control")
+
 
     def s_map(self, x, in_min, in_max, out_min, out_max):
         return ((x - in_min) * (out_max - out_min)) / (in_max - in_min) + out_min
@@ -26,29 +30,37 @@ class Analogcontrol(Socketsender):
 
     def run(self):
 
-        previous = 0
-        samples = []
         sample_count = 0
-        max_samples = 2000
+        max_samples = 500
+
+        sample_sets = [[], [], []]
+        previous_colors = [0, 0, 0]
 
         while True:
 
-            sample = int(self.s_map(self.read_adc(0), 0, 1024, 0, 255))
+            count = 0
 
-            try:
-                samples[sample_count] = sample
-            except IndexError:
-                samples.append(sample)
+            for samples, previous_color in zip(sample_sets, previous_colors):
 
-            sample_count += 1
+                sample = int(self.s_map(self.read_adc(count), 0, 1024, 0, 255))
 
-            if sample_count == max_samples:
-                # print("Reset!")
-                sample_count = 0
+                try:
+                    samples[sample_count] = sample
+                except IndexError:
+                    samples.append(sample)
 
-            value = int(sum(samples)/len(samples))
+                sample_count += 1
 
-            if value != previous:
-                previous = value
+                if sample_count == max_samples:
+                    sample_count = 0
 
-                self.send_color_change(value, value, value)
+                value = int(sum(samples)/len(samples))
+
+                if value != previous_color and abs(value-previous_color) > 15:
+                    print(count)
+                    previous_colors[count] = value
+                    print("Sending color")
+
+                    self.send_color_change(previous_colors[0], previous_colors[1], previous_colors[2])
+
+                count += 1

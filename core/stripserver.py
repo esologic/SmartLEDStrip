@@ -3,8 +3,6 @@ import os
 from threading import Thread
 
 
-
-
 class Pins(object):
 
     def __init__(self, red_led_pin, green_led_pin, blue_led_pin):
@@ -95,12 +93,13 @@ class SimPins(Pins):
 class Handler(socketserver.BaseRequestHandler):
 
     def handle(self):
-        data = self.request.recv(1024)  # self.request is the TCP socket connected to the client
 
-        print("Client: [" + self.client_address[0] + "] Sent: [" + str(data) + "]")
+        request = self.request.recv(1024)  # self.request is the TCP socket connected to the client
+
+        print("TCP Server - Client: [" + self.client_address[0] + "] Sent: [" + str(request) + "]")
 
         try:
-            v = data.decode("utf-8").split(",")
+            v = request.decode("utf-8").split(",")
             self.server.pins.set_pins(int(float(v[0])), int(float(v[1])), int(float(v[2]))) # this is kind of a hack
 
         except AttributeError as error:
@@ -116,7 +115,6 @@ class Stripserver(Thread):
         Thread.__init__(self)
         self.server = socketserver.TCPServer((host, port), Handler)
         self.server.pins = pins  # no idea if this is a hack or not
-
         print("Strip Server Initialized, listening on: " + str(host) + ":" + str(port))
 
     def run(self):
