@@ -99,8 +99,15 @@ class Handler(socketserver.BaseRequestHandler):
         print("TCP Server - Client: [" + self.client_address[0] + "] Sent: [" + str(request) + "]")
 
         try:
-            v = request.decode("utf-8").split(",")
-            self.server.pins.set_pins(int(float(v[0])), int(float(v[1])), int(float(v[2]))) # this is kind of a hack
+            decoded_request_string = request.decode("utf-8")
+            RGB_values = decoded_request_string.split(",")
+
+            """ This casting is more of a safety precaution, but ideally the client would send the values as ints"""
+            r = int(float(RGB_values[0]))
+            g = int(float(RGB_values[1]))
+            b = int(float(RGB_values[2]))
+
+            self.server.pins.set_pins(r, g, b)
 
         except AttributeError as error:
             raise AttributeError("Make sure you set the pins field of server after you init it! " + str(error))

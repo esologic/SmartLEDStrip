@@ -30,6 +30,7 @@
             var texts = document.getElementsByClassName("text");
 
             var req = new XMLHttpRequest();
+
             req.open("POST", "/setcolor", true);
             var data = [rgb.r, rgb.g, rgb.b];
             console.log("Sending: " + data + " to server.");
@@ -39,6 +40,7 @@
             for (i = 0; i < texts.length; i++) {
                 texts[i].style.color = invertColor(hex);
             }
+
         });
 
         function invertColor(hex)
